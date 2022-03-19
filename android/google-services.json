@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "767065531048",
+    "project_id": "etm-flutter",
+    "storage_bucket": "etm-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:767065531048:android:fd22c787f17226f82b989d",
+        "android_client_info": {
+          "package_name": "com.example.etm_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "767065531048-6jaht94hjbohot3j577go5jg97smjq48.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNRa2OQJguy4fcNWN2LN-l9sAzPKZiBqY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "767065531048-6jaht94hjbohot3j577go5jg97smjq48.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
