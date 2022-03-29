@@ -5,8 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
+  User? user = _firebaseAuth.currentUser;
+  HomeScreen({Key? key}) : super(key: key);
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _HomeScreenState createState() {
+    return _HomeScreenState();
+  }
 }
 
 final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -16,16 +20,9 @@ _signOut() async {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static List<Widget> _widgetOptions = <Widget>[
-    MyTasksScreen(),
-    AllTasksScreen(),
-    CompanyScreen()
-  ];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -34,6 +31,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> _widgetOptions = <Widget>[
+      MyTasksScreen(),
+      AllTasksScreen(),
+      CompanyScreen(user:widget.user!)
+    ];
     return Scaffold(
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(

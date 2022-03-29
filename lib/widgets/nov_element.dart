@@ -28,7 +28,7 @@ class _NovElementState extends State<NovElement> {
       return;
     }
 
-    final newItem = ListItem(id: nanoid(5), naslov: vnesenNaslov, vrednost: vnesenaVrednost);
+    final newItem = ListItem(id: nanoid(5), naslov: vnesenNaslov,allocatedTo: "123", opis: 'dasdsa');
     widget.addItem(context, newItem);
     Navigator.of(context).pop();
   }

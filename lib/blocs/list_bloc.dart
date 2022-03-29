@@ -8,10 +8,7 @@ class ListBloc extends Bloc<ListEvent, ListState> {
 
   ListBloc() : super(ListInitState()) {
     on<ListInitializedEvent>((event, emit) {
-      this._elements = [
-        ListItem(id: "T1", naslov: "Test 1", vrednost: 13),
-        ListItem(id: "T2", naslov: "Test 2", vrednost: 10),
-      ];
+      this._elements = [];
       ListInitState state = ListInitState();
       state.elements = this._elements;
       emit(state);

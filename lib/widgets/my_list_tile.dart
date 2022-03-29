@@ -25,7 +25,7 @@ class MyListTile extends StatelessWidget {
       ),
       child: ListTile(
         title: Text(item.naslov),
-        subtitle: Text("${item.vrednost}"),
+        subtitle: Text("Hi"),
         onTap: () => _showDetail(context),
         trailing: IconButton(
           icon: Icon(Icons.delete),

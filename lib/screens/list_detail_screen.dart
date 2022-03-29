@@ -16,7 +16,6 @@ class ListDetailScreen extends StatelessWidget {
       ),
       body: Column(children: [
         Text(item.naslov),
-        Text("${item.vrednost}"),
         Text(item.opis),
       ]),
     );
