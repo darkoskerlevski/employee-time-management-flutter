@@ -12,25 +12,31 @@ class CompanyScreen extends StatefulWidget {
   User user;
   Company? company;
   bool state = false;
-  CompanyScreen({Key? key,required this.user}) : super(key: key);
+
+  CompanyScreen({Key? key, required this.user}) : super(key: key);
+
   @override
   _CompanyScreenState createState() => _CompanyScreenState();
 }
 
 class _CompanyScreenState extends State<CompanyScreen> {
-
-  Future<Company?> getCompany() async{
-    DatabaseReference ref = FirebaseDatabase.instance.ref("users/${widget.user.uid}");
+  Future<Company?> getCompany() async {
+    DatabaseReference ref =
+        FirebaseDatabase.instance.ref("users/${widget.user.uid}");
     DatabaseReference child = ref.child("inCompany");
     DatabaseEvent event = await child.once();
     Object? companyId = event.snapshot.value;
-    if(companyId!=null)
-    {
-      DatabaseReference nameRef = FirebaseDatabase.instance.ref("companies/$companyId/name");
-      DatabaseReference managerRef = FirebaseDatabase.instance.ref("companies/$companyId/manager");
+    if (companyId != null) {
+      DatabaseReference nameRef =
+          FirebaseDatabase.instance.ref("companies/$companyId/name");
+      DatabaseReference managerRef =
+          FirebaseDatabase.instance.ref("companies/$companyId/manager");
       DatabaseEvent nameEvent = await nameRef.once();
       DatabaseEvent managerEvent = await managerRef.once();
-      return widget.company = Company(id: companyId.toString(),name:nameEvent.snapshot.value.toString(),managerId: managerEvent.snapshot.value.toString());
+      return widget.company = Company(
+          id: companyId.toString(),
+          name: nameEvent.snapshot.value.toString(),
+          managerId: managerEvent.snapshot.value.toString());
     }
     return null;
   }
@@ -51,15 +57,11 @@ class _CompanyScreenState extends State<CompanyScreen> {
     var uuid = Uuid();
     String uid = uuid.v1();
     DatabaseReference ref = FirebaseDatabase.instance.ref("companies/$uid");
-    ref.set({
-      "name" : naslov,
-      "manager" : widget.user.uid
-    });
+    ref.set({"name": naslov, "manager": widget.user.uid});
 
-    DatabaseReference ref2 = FirebaseDatabase.instance.ref("users/${widget.user.uid}");
-    ref2.set({
-      "inCompany":uid
-    });
+    DatabaseReference ref2 =
+        FirebaseDatabase.instance.ref("users/${widget.user.uid}");
+    ref2.set({"inCompany": uid});
     initState();
   }
 
@@ -76,70 +78,78 @@ class _CompanyScreenState extends State<CompanyScreen> {
   }
 
   void _inviteEmployeeCallback(BuildContext ctx, String companyUuid) {
+    DatabaseReference ref2 =
+        FirebaseDatabase.instance.ref("users/${widget.user.uid}");
+    ref2.set({"inCompany": companyUuid});
+    initState();
+  }
 
-    DatabaseReference ref2 = FirebaseDatabase.instance.ref("users/${widget.user.uid}");
-    ref2.set({
-      "inCompany": companyUuid
-    });
+  void _leaveCompanyCallback(BuildContext ctx) {
+    DatabaseReference ref2 =
+    FirebaseDatabase.instance.ref("users/${widget.user.uid}/inCompany");
+    ref2.remove();
     initState();
   }
 
   @override
   void initState() {
     getCompany().then((value) => {
-    setState(() {
-      widget.company = value;
-      widget.state = true;
-    })
-    });
+          setState(() {
+            widget.company = value;
+            widget.state = true;
+          })
+        });
   }
 
-  Widget _noCompany(BuildContext context)
-  {
+  Widget _noCompany(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Company'),
         ),
-        body:  Center(
+        body: Center(
             child: Container(
-              padding: EdgeInsets.all(12),
-              child: Column(
+          padding: EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                "You're not in a company",
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 24),
+              ),
+              SizedBox(
+                height: 24,
+              ),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  Text(
-                    "You're not in a company",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  TextButton(
+                    style: raisedButtonStyle,
+                    onPressed: () {
+                      _createNewCompanyWidget(context);
+                    },
+                    child: Text('Create company'),
                   ),
-                  SizedBox(height: 16,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      TextButton(
-                        style: raisedButtonStyle,
-                        onPressed: () { _createNewCompanyWidget(context); },
-                        child: Text('Create company'),
-                      ),
-                      SizedBox(width: 16,),
-                      TextButton(
-                        style: raisedButtonStyle,
-                        onPressed: () {_inviteEmployee(context);},
-                        child: Text('Join company'),
-                      )
-                    ],
+                  SizedBox(
+                    width: 16,
+                  ),
+                  TextButton(
+                    style: raisedButtonStyle,
+                    onPressed: () {
+                      _inviteEmployee(context);
+                    },
+                    child: Text('Join company'),
                   )
-
                 ],
-              ),
-            )
-        )
-    );
+              )
+            ],
+          ),
+        )));
   }
 
-  Widget _managerView(BuildContext context)
-  {
+  Widget _managerView(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Company'),
@@ -149,45 +159,89 @@ class _CompanyScreenState extends State<CompanyScreen> {
             'Ima',
             style: TextStyle(fontSize: 24),
           ),
-        )
-    );
+        ));
   }
 
-  Widget _employeeView(BuildContext context)
-  {
+  Widget _employeeView(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Company'),
         ),
-        body: const Center(
-          child: Text(
-            'Your company:',
-            style: TextStyle(fontSize: 24),
-          ),
-        )
-    );
-  }
+        body: Center(
+            child: Container(
+              padding: EdgeInsets.all(12),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        "Your company: ${widget.company?.name}",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 24),
+                      ),
+                      SizedBox(height: 24,),
+                      Text(
+                        "CompanyId: ${widget.company?.id}",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      TextButton(
+                        style: raisedButtonStyle,
+                        onPressed: () {
+                          showAlertDialog(context);
+                        },
+                        child: Text('Leave company'),
+                      )
 
+                  ],
+                ),
+            )));
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.state)
-      {
-        if (widget.company!=null)
-        {
-          return _employeeView(context);
-        }
-        else{
-          return _noCompany(context);
-        }
+    if (widget.state) {
+      if (widget.company != null) {
+        return _employeeView(context);
+      } else {
+        return _noCompany(context);
       }
-    else{
+    } else {
       return Scaffold(
           appBar: AppBar(
-            title: const Text('Company'),
-          )
-      );
+        title: const Text('Company'),
+      ));
     }
   }
 
+
+  showAlertDialog(BuildContext context) {  // set up the buttons
+    Widget cancelButton = FlatButton(
+      child: Text("Cancel"),
+      onPressed:  () {
+        Navigator.pop(context);
+      },
+    );
+    Widget continueButton = FlatButton(
+      child: Text("Continue"),
+      onPressed:  () {
+        _leaveCompanyCallback(context);
+        Navigator.pop(context);
+      },
+    );  // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("AlertDialog"),
+      content: Text("Would you like leave the company?"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );  // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 }
