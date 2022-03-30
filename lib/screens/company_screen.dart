@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../components/button.dart';
 import '../model/Company.dart';
 
 class CompanyScreen extends StatefulWidget {
@@ -14,6 +15,9 @@ class CompanyScreen extends StatefulWidget {
 }
 
 class _CompanyScreenState extends State<CompanyScreen> {
+
+  final createCompanyFieldController = TextEditingController();
+  final joinCompanyFieldController = TextEditingController();
 
   Future<Company?> getCompany() async{
     DatabaseReference ref = FirebaseDatabase.instance.ref("users/${widget.user.uid}");
@@ -64,11 +68,46 @@ class _CompanyScreenState extends State<CompanyScreen> {
               appBar: AppBar(
                 title: const Text('Company'),
               ),
-              body: const Center(
-                child: Text(
-                  'Nema',
-                  style: TextStyle(fontSize: 24),
-                ),
+              body:  Center(
+                child: Container(
+                  padding: EdgeInsets.all(12),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(height: 150,),
+                      TextField(
+                        controller: createCompanyFieldController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Enter company name',
+                          isDense: true,
+
+                        ),
+                      ),
+                      SizedBox(height: 16,),
+                      TextButton(
+                        style: raisedButtonStyle,
+                        onPressed: () { },
+                        child: Text('Create company'),
+                      ),
+                      SizedBox(height: 16,),
+                      TextField(
+                        controller: joinCompanyFieldController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Enter company ID',
+                          isDense: true,
+
+                        ),
+                      ),
+                      SizedBox(height: 16,),
+                      TextButton(
+                        style: raisedButtonStyle,
+                        onPressed: () { },
+                        child: Text('Join company'),
+                      )
+                    ],
+                  ),
+                )
               )
           );
         }
