@@ -1,8 +1,8 @@
 import 'package:etm_flutter/screens/all_tasks_screen.dart';
 import 'package:etm_flutter/screens/company_screen.dart';
 import 'package:etm_flutter/screens/my_tasks_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
   User? user = _firebaseAuth.currentUser;
@@ -32,8 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     List<Widget> _widgetOptions = <Widget>[
-      MyTasksScreen(),
-      AllTasksScreen(),
+      MyTasksScreen(user: widget.user!),
+      AllTasksScreen(user: widget.user!),
       CompanyScreen(user:widget.user!)
     ];
     return Scaffold(

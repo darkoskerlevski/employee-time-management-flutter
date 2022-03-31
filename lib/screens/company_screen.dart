@@ -61,7 +61,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
 
     DatabaseReference ref2 =
         FirebaseDatabase.instance.ref("users/${widget.user.uid}");
-    ref2.set({"inCompany": uid});
+    ref2.update({"inCompany": uid});
     initState();
   }
 
@@ -80,7 +80,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
   void _inviteEmployeeCallback(BuildContext ctx, String companyUuid) {
     DatabaseReference ref2 =
         FirebaseDatabase.instance.ref("users/${widget.user.uid}");
-    ref2.set({"inCompany": companyUuid});
+    ref2.update({"inCompany": companyUuid});
     initState();
   }
 
