@@ -1,4 +1,3 @@
-import 'package:etm_flutter/screens/RemovedTasks.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -8,16 +7,16 @@ import '../service/UserService.dart';
 import '../widgets/Card.dart';
 import '../widgets/newTask.dart';
 
-class AllTasksScreen extends StatefulWidget {
+class RemovedTasksScreen extends StatefulWidget {
   User user;
 
-  AllTasksScreen({required this.user});
+  RemovedTasksScreen({required this.user});
 
   @override
-  _AllTasksScreenState createState() => _AllTasksScreenState();
+  _RemovedTasksScreenState createState() => _RemovedTasksScreenState();
 }
 
-class _AllTasksScreenState extends State<AllTasksScreen> {
+class _RemovedTasksScreenState extends State<RemovedTasksScreen> {
   List<Task> myTasks = [];
   String? companyId;
 
@@ -29,7 +28,7 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
         companyId = value;
       });
     }).then((value) {
-      TaskService.listTasksForCompany(companyId!).then((value) {
+      TaskService.listTasksForCompanyRemoved(companyId!).then((value) {
         setState(() {
           myTasks = value;
         });
@@ -37,28 +36,24 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
     });
   }
 
-  void _addItemFunction(BuildContext ct) {
-    if (companyId == null) {
-      this.showAlertDialog(ct);
-    } else {
-      showModalBottomSheet(
-          context: ct,
-          builder: (_) {
-            return GestureDetector(
+  void _restoreTaskFunction(BuildContext ct) {
+    showModalBottomSheet(
+        context: ct,
+        builder: (_) {
+          return GestureDetector(
               onTap: () {},
               child: NewTask(
-                  addItem: _addNewItemToList,
+                  addItem: _restoreTask,
                   companyId: companyId!,
                   userId: widget.user.uid),
               behavior: HitTestBehavior.opaque,
-            );
-          });
-    }
+          );
+        });
   }
 
-  void _addNewItemToList(BuildContext ctx, Task task) {
-    TaskService.newTask(task);
-    TaskService.listTasksForCompany(companyId!).then((value) {
+  void _restoreTask(BuildContext ctx, String taskId) {
+    TaskService.restoreTask(taskId);
+    TaskService.listTasksForCompanyRemoved(companyId!).then((value) {
       setState(() {
         myTasks = value;
       });
@@ -69,24 +64,11 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My tasks'),
-        actions: <Widget>[
-          IconButton(
-              icon: const Icon(Icons.remove_circle),
-              tooltip: 'Removed Tasks',
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => RemovedTasksScreen(user: widget.user)));
-              }),
-        ]
+        title: const Text('Removed Tasks'),
       ),
       body: ListView(
         children: [for (Task task in myTasks) CustomCard(task: task)],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => {_addItemFunction(context)},
-        tooltip: 'Add Task',
-        child: const Icon(Icons.add),
-      ),
+      )
     );
   }
 

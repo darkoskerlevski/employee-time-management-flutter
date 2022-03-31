@@ -9,13 +9,36 @@ class TaskService{
     Iterable<DataSnapshot> listTasks = event.snapshot.children;
     List<Task> tasks = [];
     for (DataSnapshot task in listTasks){
-      String id = task.key!;
-      String title = task.child("title").value.toString();
-      String desc = task.child("description").value.toString();
-      String companyIdT = task.child("companyId").value.toString();
-      String allocatedTo = task.child("allocatedTo").value.toString();
-      DateTime by = DateTime.parse(task.child("by").value.toString());
-      tasks.add(Task(id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc));
+      String deleted = task.child("deleted").value.toString();
+      if (deleted != "deleted") {
+        String id = task.key!;
+        String title = task
+            .child("title")
+            .value
+            .toString();
+        String desc = task
+            .child("description")
+            .value
+            .toString();
+        String companyIdT = task
+            .child("companyId")
+            .value
+            .toString();
+        String allocatedTo = task
+            .child("allocatedTo")
+            .value
+            .toString();
+        DateTime by = DateTime.parse(task
+            .child("by")
+            .value
+            .toString());
+        tasks.add(Task(id: id,
+            companyId: companyIdT,
+            title: title,
+            by: by,
+            allocatedTo: allocatedTo,
+            description: desc));
+      }
     }
     return tasks.where((element) => element.allocatedTo == userId && element.companyId == companyId).toList();
   }
@@ -26,13 +49,57 @@ class TaskService{
     Iterable<DataSnapshot> listTasks = event.snapshot.children;
     List<Task> tasks = [];
     for (DataSnapshot task in listTasks){
-      String id = task.key!;
-      String title = task.child("title").value.toString();
-      String desc = task.child("description").value.toString();
-      String companyIdT = task.child("companyId").value.toString();
-      String allocatedTo = task.child("allocatedTo").value.toString();
-      DateTime by = DateTime.parse(task.child("by").value.toString());
-      tasks.add(Task(id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc));
+      String deleted = task.child("deleted").value.toString();
+      if (deleted != "deleted") {
+        String id = task.key!;
+        String title = task
+            .child("title")
+            .value
+            .toString();
+        String desc = task
+            .child("description")
+            .value
+            .toString();
+        String companyIdT = task
+            .child("companyId")
+            .value
+            .toString();
+        String allocatedTo = task
+            .child("allocatedTo")
+            .value
+            .toString();
+        DateTime by = DateTime.parse(task
+            .child("by")
+            .value
+            .toString());
+        tasks.add(Task(id: id,
+            companyId: companyIdT,
+            title: title,
+            by: by,
+            allocatedTo: allocatedTo,
+            description: desc));
+      }
+    }
+    return tasks.where((element) => element.companyId == companyId).toList();
+  }
+
+  static Future<List<Task>> listTasksForCompanyRemoved(String companyId) async{
+    DatabaseReference ref = FirebaseDatabase.instance.ref("tasks");
+    DatabaseEvent event = await ref.once();
+    Iterable<DataSnapshot> listTasks = event.snapshot.children;
+    List<Task> tasks = [];
+    for (DataSnapshot task in listTasks){
+      String deleted = task.child("deleted").value.toString();
+      if (deleted == "deleted")
+        {
+          String id = task.key!;
+          String title = task.child("title").value.toString();
+          String desc = task.child("description").value.toString();
+          String companyIdT = task.child("companyId").value.toString();
+          String allocatedTo = task.child("allocatedTo").value.toString();
+          DateTime by = DateTime.parse(task.child("by").value.toString());
+          tasks.add(Task(id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc));
+        }
     }
     return tasks.where((element) => element.companyId == companyId).toList();
   }
@@ -44,6 +111,20 @@ class TaskService{
       "by":task.by.toString(),
       "allocatedTo":task.allocatedTo,
       "companyId":task.companyId
+    });
+  }
+
+  static Future<void> deleteTask(String taskId) async{
+    DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
+    ref.update({
+      "deleted" : "deleted"
+    });
+  }
+
+  static Future<void> restoreTask(String taskId) async{
+    DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
+    ref.update({
+      "deleted" : "restored"
     });
   }
 }

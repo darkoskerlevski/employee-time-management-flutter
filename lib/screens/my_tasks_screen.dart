@@ -32,8 +32,6 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
     });
   }
 
-
-
   void _addItemFunction(BuildContext ct) {
     if(companyId==null)
       {
@@ -60,12 +58,12 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
         });
       });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('My tasks'),
+          title: const Text('My tasks')
         ),
         body: ListView(
           children: [
