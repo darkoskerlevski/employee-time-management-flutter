@@ -1,7 +1,8 @@
+import 'package:etm_flutter/components/button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:etm_flutter/components/button.dart';
+
 import '../constants.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -105,7 +106,6 @@ class _SignupScreenState extends State<SignupScreen> {
                             try {
                               await _auth.createUserWithEmailAndPassword(
                                   email: email, password: password);
-
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   backgroundColor: Colors.blueGrey,

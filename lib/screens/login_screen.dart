@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -98,6 +99,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             try {
                               await _auth.signInWithEmailAndPassword(
                                   email: email, password: password);
+                              User? user = FirebaseAuth.instance.currentUser;
+                              DatabaseReference ref2 =
+                              FirebaseDatabase.instance.ref("users/${user!.uid}");
+                              ref2.update({"email": user.email});
                               await Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomeScreen()));
                               setState(() {
                                 isloading = false;
