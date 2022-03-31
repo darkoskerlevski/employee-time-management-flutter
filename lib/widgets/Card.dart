@@ -1,11 +1,11 @@
+import 'package:etm_flutter/screens/task_details_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../model/Task.dart';
 
 class CustomCard extends StatelessWidget{
   Task task;
-  final Function() deleted;
-  CustomCard({required this.task,required this.deleted});
+  CustomCard({required this.task});
 
   @override
   Widget build(BuildContext context) {
@@ -15,15 +15,15 @@ class CustomCard extends StatelessWidget{
         children: [
           ListTile(
             leading: Icon(Icons.alarm),
-            title: Text("dakisd",style: TextStyle(fontWeight: FontWeight.bold),),
-            subtitle: Text("dasdsadas",
+            title: Text(task.title,style: TextStyle(fontWeight: FontWeight.bold),),
+            subtitle: Text(task.description,
               style: TextStyle(color: Colors.grey),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "dsadadsd",
+              task.by.toString(),
               style: TextStyle(color: Colors.grey),
             ),
           ),
@@ -31,13 +31,11 @@ class CustomCard extends StatelessWidget{
             alignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                  onPressed: () {},
-                  child: const Text('Create reminder', style: TextStyle(color: Colors.blue))
-              ),
-              TextButton(
-                onPressed: () => deleted(),
-                child: const Text('DELETE', style: TextStyle(color: Colors.red),),
-              ),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => TaskDetailsScreen(task: task)));
+                  },
+                  child: const Text('Open Task', style: TextStyle(color: Colors.blue))
+              )
             ],
           ),
         ],
