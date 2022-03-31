@@ -32,7 +32,7 @@ class _NewTaskState extends State<NewTask> {
     }
     var uuid = Uuid();
     String uid = uuid.v1();
-    Task task = Task(id:uid,allocatedTo: ddv,companyId: widget.companyId,title: title,description: desc,by: date);
+    Task task = Task(id:uid,allocatedTo: ddv,companyId: widget.companyId,title: title,description: desc,by: date, timeSpent: 0, stopwatchPressed: false);
     widget.addItem!(context,task);
     Navigator.of(context).pop();
   }

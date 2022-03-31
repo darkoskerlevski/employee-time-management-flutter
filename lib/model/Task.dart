@@ -5,7 +5,9 @@ class Task{
   DateTime by;
   String allocatedTo;
   String companyId;
+  int timeSpent;
+  bool stopwatchPressed;
 
-  Task({required this.id,required this.allocatedTo,required this.companyId,required this.title,required this.description,required this.by});
+  Task({required this.id,required this.allocatedTo,required this.companyId,required this.title,required this.description,required this.by, required this.timeSpent, required this.stopwatchPressed});
 
 }

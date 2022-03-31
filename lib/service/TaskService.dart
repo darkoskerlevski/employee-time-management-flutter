@@ -32,12 +32,16 @@ class TaskService{
             .child("by")
             .value
             .toString());
+        int time = int.parse(task.child("timeSpent").value.toString());
+        bool pressed = task.child("pressed").value == 'true';
         tasks.add(Task(id: id,
             companyId: companyIdT,
             title: title,
             by: by,
             allocatedTo: allocatedTo,
-            description: desc));
+            description: desc,
+            timeSpent: time,
+            stopwatchPressed: pressed));
       }
     }
     return tasks.where((element) => element.allocatedTo == userId && element.companyId == companyId).toList();
@@ -72,12 +76,16 @@ class TaskService{
             .child("by")
             .value
             .toString());
+        int time = int.parse(task.child("timeSpent").value.toString());
+        bool pressed = task.child("pressed").value == 'true';
         tasks.add(Task(id: id,
             companyId: companyIdT,
             title: title,
             by: by,
             allocatedTo: allocatedTo,
-            description: desc));
+            description: desc,
+            timeSpent: time,
+            stopwatchPressed: pressed));
       }
     }
     return tasks.where((element) => element.companyId == companyId).toList();
@@ -98,7 +106,7 @@ class TaskService{
           String companyIdT = task.child("companyId").value.toString();
           String allocatedTo = task.child("allocatedTo").value.toString();
           DateTime by = DateTime.parse(task.child("by").value.toString());
-          tasks.add(Task(id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc));
+          tasks.add(Task(id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc, timeSpent: 0, stopwatchPressed: false));
         }
     }
     return tasks.where((element) => element.companyId == companyId).toList();
@@ -110,7 +118,8 @@ class TaskService{
       "description":task.description,
       "by":task.by.toString(),
       "allocatedTo":task.allocatedTo,
-      "companyId":task.companyId
+      "companyId":task.companyId,
+      "timeSpent":task.timeSpent
     });
   }
 
@@ -125,6 +134,19 @@ class TaskService{
     DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
     ref.update({
       "deleted" : "restored"
+    });
+  }
+
+  static Future<void> updateTaskTime(String taskId, int time) async{
+    DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
+    ref.update({
+      "timeSpent" : time
+    });
+  }
+  static Future<void> updatePressedStatus(String taskId, bool pressed) async{
+    DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
+    ref.update({
+      "pressed" : pressed
     });
   }
 }

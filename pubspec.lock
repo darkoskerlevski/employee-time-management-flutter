@@ -64,6 +64,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  dp_stopwatch:
+    dependency: "direct main"
+    description:
+      name: dp_stopwatch
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.3"
   fake_async:
     dependency: transitive
     description:

@@ -24,4 +24,10 @@ class UserService{
     }
     return users.where((element) => element.companyId==companyId).toList();
   }
+  static Future<String> getUserEmail(String userId) async{
+    DatabaseReference ref = FirebaseDatabase.instance.ref("users/${userId}");
+    DatabaseReference child = ref.child("email");
+    DatabaseEvent event = await child.once();
+    return event.snapshot.value.toString();
+  }
 }

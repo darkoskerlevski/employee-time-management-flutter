@@ -1,7 +1,9 @@
+import 'package:etm_flutter/service/TaskService.dart';
 import 'package:flutter/material.dart';
 import '../components/button.dart';
 import '../model/Task.dart';
 import 'package:intl/intl.dart';
+import 'package:dp_stopwatch/dp_stopwatch.dart';
 
 class TaskDetailsScreen extends StatefulWidget {
   Task task;
@@ -13,11 +15,20 @@ class TaskDetailsScreen extends StatefulWidget {
 
 class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
+  late final stopwatchViewModel = DPStopwatchViewModel(
+    startWithTenMilliseconds: widget.task.timeSpent,
+    clockTextStyle: const TextStyle(
+      color: Colors.black,
+      fontSize: 32,
+    ),
+  );
+
   final taskTitleController = new TextEditingController();
   final taskDescriptionContoller = new TextEditingController();
   final taskDueDateController = new TextEditingController();
   var myFormat = DateFormat('yyyy-MM-dd');
   bool _isButtonDisabled = false;
+  bool alreadyClickedStartForTheFirstTime = false;
 
   @override
   void initState() {
@@ -29,10 +40,22 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
   void _buttonPressed(){
     setState(() {
-      if (!_isButtonDisabled)
+      if (!_isButtonDisabled) {
         _isButtonDisabled = true;
-      else
+        if (!alreadyClickedStartForTheFirstTime) {
+          stopwatchViewModel.start?.call();
+          alreadyClickedStartForTheFirstTime = true;
+        }
+        else
+          stopwatchViewModel.resume?.call();
+      }
+      else {
         _isButtonDisabled = false;
+        stopwatchViewModel.pause?.call();
+        TaskService.updateTaskTime(widget.task.id, stopwatchViewModel.currentTenMilliseconds);
+        widget.task.timeSpent = stopwatchViewModel.currentTenMilliseconds;
+      }
+      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled);
     });
   }
 
@@ -105,6 +128,10 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                     "Task time counter:",
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 24),),
+                  SizedBox(height: 12,),
+                  DPStopWatchWidget(
+                    stopwatchViewModel,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -121,9 +148,9 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                         style: raisedButtonStyle,
                         onPressed: _isButtonDisabled ? _buttonPressed : null,
                         child: Text('Stop timer'),
-                      )
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
             )

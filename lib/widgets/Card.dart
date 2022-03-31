@@ -1,4 +1,5 @@
 import 'package:etm_flutter/screens/task_details_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../model/Task.dart';
@@ -27,6 +28,10 @@ class CustomCard extends StatelessWidget{
               style: TextStyle(color: Colors.grey),
             ),
           ),
+          // Text(
+          //   "Asignee: " + user.email!,
+          //   style: TextStyle(color: Colors.grey),
+          // ),
           ButtonBar(
             alignment: MainAxisAlignment.end,
             children: [
