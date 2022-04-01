@@ -33,6 +33,8 @@ class TaskService{
             .value
             .toString());
         int time = int.parse(task.child("timeSpent").value.toString());
+        double sumRoll = double.parse(task.child("sumRoll").value.toString());
+        double sumPitch = double.parse(task.child("sumPitch").value.toString());
         bool pressed = task.child("pressed").value == true;
         DateTime lastpress = DateTime.parse(task
             .child("lastButtonPress")
@@ -46,7 +48,8 @@ class TaskService{
             description: desc,
             timeSpent: time,
             stopwatchPressed: pressed,
-            stopwatchLastPress: lastpress));
+            stopwatchLastPress: lastpress,
+        sumRoll: sumRoll,sumPitch: sumPitch));
       }
     }
     return tasks.where((element) => element.allocatedTo == userId && element.companyId == companyId).toList();
@@ -82,6 +85,8 @@ class TaskService{
             .value
             .toString());
         int time = int.parse(task.child("timeSpent").value.toString());
+        double sumRoll = double.parse(task.child("sumRoll").value.toString());
+        double sumPitch = double.parse(task.child("sumPitch").value.toString());
         bool pressed = task.child("pressed").value == true;
         DateTime lastpress = DateTime.parse(task
             .child("lastButtonPress")
@@ -95,7 +100,9 @@ class TaskService{
             description: desc,
             timeSpent: time,
             stopwatchPressed: pressed,
-            stopwatchLastPress: lastpress));
+            stopwatchLastPress: lastpress,
+            sumPitch: sumPitch,
+            sumRoll: sumRoll));
       }
     }
     return tasks.where((element) => element.companyId == companyId).toList();
@@ -118,8 +125,10 @@ class TaskService{
           DateTime by = DateTime.parse(task.child("by").value.toString());
           bool pressed = task.child("pressed").value == true;
           int time = int.parse(task.child("timeSpent").value.toString());
+          double sumRoll = double.parse(task.child("sumRoll").value.toString());
+          double sumPitch = double.parse(task.child("sumPitch").value.toString());
           DateTime lastpress = DateTime.parse(task.child("lastButtonPress").value.toString());
-          tasks.add(Task(id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc, timeSpent: time, stopwatchPressed: pressed, stopwatchLastPress: lastpress));
+          tasks.add(Task(sumPitch:sumPitch,sumRoll:sumRoll,id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc, timeSpent: time, stopwatchPressed: pressed, stopwatchLastPress: lastpress));
         }
     }
     return tasks.where((element) => element.companyId == companyId).toList();
@@ -134,7 +143,9 @@ class TaskService{
       "companyId":task.companyId,
       "timeSpent":task.timeSpent,
       "pressed":task.stopwatchPressed,
-      "lastButtonPress": task.stopwatchLastPress.toString()
+      "lastButtonPress": task.stopwatchLastPress.toString(),
+      "sumRoll":0,
+      "sumPitch":0
     });
   }
 
@@ -178,6 +189,13 @@ class TaskService{
     DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
     ref.update({
       "lastButtonPress" : DateTime.now().toString()
+    });
+  }
+  static Future<void> setRollAndPitch(String taskId,double sumRoll,double sumPitch) async{
+    DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
+    ref.update({
+      "sumRoll" : sumRoll,
+      "sumPitch" : sumPitch
     });
   }
 }

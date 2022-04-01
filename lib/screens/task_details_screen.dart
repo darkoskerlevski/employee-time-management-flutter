@@ -2,6 +2,7 @@ import 'package:etm_flutter/service/TaskService.dart';
 import 'package:etm_flutter/service/UserService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import '../components/button.dart';
 import '../model/Task.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +20,8 @@ class TaskDetailsScreen extends StatefulWidget {
   _TaskDetailsScreenState createState() => _TaskDetailsScreenState();
 }
 
+
+
 class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
   final stopWatchTimer = StopWatchTimer(
@@ -28,18 +31,22 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   final taskTitleController = new TextEditingController();
   final taskDescriptionContoller = new TextEditingController();
   final taskDueDateController = new TextEditingController();
+  final pitchController = new TextEditingController();
+  final rollController = new TextEditingController();
   var myFormat = DateFormat('yyyy-MM-dd');
   bool _isButtonDisabled = false;
   int totalTime = 0;
+  void Function()? _buttonPressed;
   String dropdownValue="";
   List<CustomUser> users = [];
-
 
   @override
   void initState() {
     taskTitleController.text = widget.task.title;
     taskDescriptionContoller.text = widget.task.description;
     taskDueDateController.text = widget.task.by.toString();
+    rollController.text = widget.task.sumRoll.toString();
+    pitchController.text = widget.task.sumPitch.toString();
     UserService.getUserEmail(widget.task.allocatedTo).then((value) => {
       dropdownValue = value
     });
@@ -55,29 +62,44 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     super.initState();
   }
 
+  void _timerStarted() {
+    setState(() {
+      _isButtonDisabled = true;
+      stopWatchTimer.onExecute.add(StopWatchExecute.start);
+      TaskService.updateTaskLastPressedTime(widget.task.id);
+      widget.task.stopwatchLastPress = DateTime.now();
+      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled);
+      widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
+      _buttonPressed = _timerStopped;
+      FlutterBackgroundService flutterBackgroundService = FlutterBackgroundService();
+      flutterBackgroundService.startService();
+    });
+  }
+
+  void _timerStopped() {
+    setState(() {
+      FlutterBackgroundService flutterBackgroundService = FlutterBackgroundService();
+      flutterBackgroundService.sendData({"event" : "sendData"});
+      _isButtonDisabled = false;
+      stopWatchTimer.onExecute.add(StopWatchExecute.stop);
+      TaskService.updateTaskTime(widget.task.id, totalTime);
+      widget.task.timeSpent = totalTime;
+      widget.task.stopwatchLastPress = DateTime.now();
+      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled);
+      widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
+      _buttonPressed = _timerStarted;
+
+      flutterBackgroundService.onDataReceived.first.then((value)=>{
+        TaskService.setRollAndPitch(widget.task.id,widget.task.sumRoll + value!["sumRoll"], widget.task.sumPitch + value["sumPitch"])
+      });
+      flutterBackgroundService.sendData({"event" : "stopService"});
+    });
+  }
+
   @override
   void dispose() async{
     super.dispose();
     await stopWatchTimer.dispose();
-  }
-
-  void _buttonPressed(){
-    setState(() {
-      if (!_isButtonDisabled) {
-        _isButtonDisabled = true;
-        stopWatchTimer.onExecute.add(StopWatchExecute.start);
-        TaskService.updateTaskLastPressedTime(widget.task.id);
-      }
-      else {
-        _isButtonDisabled = false;
-        stopWatchTimer.onExecute.add(StopWatchExecute.stop);
-        TaskService.updateTaskTime(widget.task.id, totalTime);
-        widget.task.timeSpent = totalTime;
-      }
-      widget.task.stopwatchLastPress = DateTime.now();
-      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled);
-      widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
-    });
   }
 
   void checkIfTimerIsAlreadyPressed(){
@@ -87,9 +109,11 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
         Duration diff = DateTime.now().difference(widget.task.stopwatchLastPress);
         stopWatchTimer.setPresetTime(mSec: diff.inMilliseconds + widget.task.timeSpent);
         stopWatchTimer.onExecute.add(StopWatchExecute.start);
+        _buttonPressed = _timerStopped;
       }
       else{
         stopWatchTimer.setPresetTime(mSec: widget.task.timeSpent);
+        _buttonPressed = _timerStarted;
       }
     });
   }
@@ -149,6 +173,35 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                       }
                     },
                     readOnly: true,
+                  ),
+                  SizedBox(height: 16,)
+                  ,Row(
+                   children: [
+                     SizedBox(width: 150,
+                         child: TextField(
+                           controller: rollController,
+                           decoration: InputDecoration(
+                             border: OutlineInputBorder(),
+                             labelText: 'Sum of roll',
+                             isDense: true,
+                             enabled: false,
+
+                           ),
+                         )
+                     ),
+                     SizedBox(
+                       width: 16,
+                     )
+                     ,SizedBox(width: 150,child: TextField(
+                       controller: pitchController,
+                       decoration: InputDecoration(
+                         border: OutlineInputBorder(),
+                         labelText: 'Sum of pitch',
+                         isDense: true,
+                         enabled: false,
+                       ),
+                     ))
+                   ],
                   ),
                   SizedBox(height: 16,),
                   Text(
@@ -274,6 +327,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                         style: raisedButtonStyle,
                         onPressed: _isButtonDisabled ? null : _buttonPressed,
                         child: Text('Start timer'),
+
                       ),
                       SizedBox(
                         width: 16,
