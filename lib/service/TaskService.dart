@@ -34,6 +34,10 @@ class TaskService{
             .toString());
         int time = int.parse(task.child("timeSpent").value.toString());
         bool pressed = task.child("pressed").value == 'true';
+        DateTime lastpress = DateTime.parse(task
+            .child("lastButtonPress")
+            .value
+            .toString());
         tasks.add(Task(id: id,
             companyId: companyIdT,
             title: title,
@@ -41,7 +45,8 @@ class TaskService{
             allocatedTo: allocatedTo,
             description: desc,
             timeSpent: time,
-            stopwatchPressed: pressed));
+            stopwatchPressed: pressed,
+            stopwatchLastPress: lastpress));
       }
     }
     return tasks.where((element) => element.allocatedTo == userId && element.companyId == companyId).toList();
@@ -78,6 +83,10 @@ class TaskService{
             .toString());
         int time = int.parse(task.child("timeSpent").value.toString());
         bool pressed = task.child("pressed").value == 'true';
+        DateTime lastpress = DateTime.parse(task
+            .child("lastButtonPress")
+            .value
+            .toString());
         tasks.add(Task(id: id,
             companyId: companyIdT,
             title: title,
@@ -85,7 +94,8 @@ class TaskService{
             allocatedTo: allocatedTo,
             description: desc,
             timeSpent: time,
-            stopwatchPressed: pressed));
+            stopwatchPressed: pressed,
+            stopwatchLastPress: lastpress));
       }
     }
     return tasks.where((element) => element.companyId == companyId).toList();
@@ -106,7 +116,7 @@ class TaskService{
           String companyIdT = task.child("companyId").value.toString();
           String allocatedTo = task.child("allocatedTo").value.toString();
           DateTime by = DateTime.parse(task.child("by").value.toString());
-          tasks.add(Task(id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc, timeSpent: 0, stopwatchPressed: false));
+          tasks.add(Task(id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc, timeSpent: 0, stopwatchPressed: false, stopwatchLastPress: DateTime.now()));
         }
     }
     return tasks.where((element) => element.companyId == companyId).toList();
@@ -119,7 +129,8 @@ class TaskService{
       "by":task.by.toString(),
       "allocatedTo":task.allocatedTo,
       "companyId":task.companyId,
-      "timeSpent":task.timeSpent
+      "timeSpent":task.timeSpent,
+      "lastButtonPress": task.stopwatchLastPress.toString()
     });
   }
 
