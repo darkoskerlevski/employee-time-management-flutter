@@ -80,7 +80,7 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
         ]
       ),
       body: ListView(
-        children: [for (Task task in myTasks) CustomCard(task: task)],
+        children: [for (Task task in myTasks) CustomCard(task: task, user: widget.user, removed: false,)],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => {_addItemFunction(context)},

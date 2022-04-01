@@ -67,7 +67,7 @@ class _RemovedTasksScreenState extends State<RemovedTasksScreen> {
         title: const Text('Removed Tasks'),
       ),
       body: ListView(
-        children: [for (Task task in myTasks) CustomCard(task: task)],
+        children: [for (Task task in myTasks) CustomCard(task: task, user: widget.user, removed: true)],
       )
     );
   }

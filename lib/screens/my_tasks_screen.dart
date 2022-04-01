@@ -68,7 +68,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
         body: ListView(
           children: [
             for (Task task in myTasks)
-              CustomCard(task: task)
+              CustomCard(task: task, user: widget.user, removed: false)
           ],
         ),
         floatingActionButton: FloatingActionButton(
