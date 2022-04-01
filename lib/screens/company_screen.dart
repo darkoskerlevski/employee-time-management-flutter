@@ -2,11 +2,12 @@ import 'package:etm_flutter/widgets/newEmployee.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:flutter/services.dart';
 import '../components/button.dart';
 import '../model/Company.dart';
 import '../widgets/newCompanyForm.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wc_flutter_share/wc_flutter_share.dart';
 
 class CompanyScreen extends StatefulWidget {
   User user;
@@ -174,25 +175,66 @@ class _CompanyScreenState extends State<CompanyScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
+                      Text(widget.user.email!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
+                      SizedBox(height: 16,),
                       Text(
-                        "Your company: ${widget.company?.name}",
+                        "Your company:",
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 24),
                       ),
+                      Text(
+                        "${widget.company?.name}",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 22),
+                      ),
                       SizedBox(height: 24,),
                       Text(
-                        "CompanyId: ${widget.company?.id}",
+                        "CompanyId: ",
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontSize: 16),
                       ),
-                      TextButton(
-                        style: raisedButtonStyle,
-                        onPressed: () {
-                          showAlertDialog(context);
-                        },
-                        child: Text('Leave company'),
+                      Text(
+                        "${widget.company?.id}",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            style: raisedButtonStyle,
+                              onPressed: (){
+                                Clipboard.setData(ClipboardData(text: widget.company?.id));
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text("Company ID copied to clipboard"),
+                                ));
+                              },
+                              child: Text('Copy ID')),
+                          SizedBox(width: 16,),
+                          TextButton(
+                            style: raisedButtonStyle,
+                            onPressed: () {
+                              WcFlutterShare.share(
+                                  sharePopupTitle: 'Share',
+                                  subject: 'Join my company',
+                                  text: 'I\'m inviting you to join my company. Company ID: ' + widget.company!.id,
+                                  mimeType: 'text/plain');
+                            },
+                            child: Text('Share ID'),
+                          ),
+                          SizedBox(width: 16,),
+                          TextButton(
+                            style: raisedButtonStyle,
+                            onPressed: () {
+                              showAlertDialog(context);
+                            },
+                            child: Text('Leave company'),
+                          )
+                        ],
                       )
-
                   ],
                 ),
             )));
@@ -230,8 +272,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
       },
     );  // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("AlertDialog"),
-      content: Text("Would you like leave the company?"),
+      title: Text("Alert!"),
+      content: Text("Are you sure you want to leave the company?"),
       actions: [
         cancelButton,
         continueButton,

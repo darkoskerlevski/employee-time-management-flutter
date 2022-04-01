@@ -33,7 +33,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
   }
 
   void _addItemFunction(BuildContext ct) {
-    if(companyId==null)
+    if(companyId=='null')
       {
         this.showAlertDialog(ct);
       }
@@ -89,8 +89,8 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
       },
     ); // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("AlertDialog"),
-      content: Text("You arent in a company"),
+      title: Text("Alert"),
+      content: Text("You are not in a company"),
       actions: [
         cancelButton
       ],
