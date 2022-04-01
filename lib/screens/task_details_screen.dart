@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../components/button.dart';
 import '../model/Task.dart';
 import 'package:intl/intl.dart';
-import 'package:dp_stopwatch/dp_stopwatch.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 class TaskDetailsScreen extends StatefulWidget {
   Task task;
@@ -15,12 +15,19 @@ class TaskDetailsScreen extends StatefulWidget {
 
 class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
-  late final stopwatchViewModel = DPStopwatchViewModel(
-    startWithTenMilliseconds: widget.task.timeSpent,
-    clockTextStyle: const TextStyle(
-      color: Colors.black,
-      fontSize: 32,
-    ),
+  // late final stopwatchViewModel = DPStopwatchViewModel(
+  //   startWithTenMilliseconds: widget.task.timeSpent,
+  //   clockTextStyle: const TextStyle(
+  //     color: Colors.black,
+  //     fontSize: 32,
+  //   ),
+  // );
+
+  final stopWatchTimer = StopWatchTimer(
+    mode: StopWatchMode.countUp,
+    // onChange: (value) => print('onChange $value'),
+    // onChangeRawSecond: (value) => print('onChangeRawSecond $value'),
+    // onChangeRawMinute: (value) => print('onChangeRawMinute $value'),
   );
 
   final taskTitleController = new TextEditingController();
@@ -28,34 +35,54 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   final taskDueDateController = new TextEditingController();
   var myFormat = DateFormat('yyyy-MM-dd');
   bool _isButtonDisabled = false;
-  bool alreadyClickedStartForTheFirstTime = false;
+  int totalTime = 0;
+
 
   @override
   void initState() {
     taskTitleController.text = widget.task.title;
     taskDescriptionContoller.text = widget.task.description;
     taskDueDateController.text = widget.task.by.toString();
+    checkIfTimerIsAlreadyPressed();
     super.initState();
+  }
+
+  @override
+  void dispose() async{
+    super.dispose();
+    await stopWatchTimer.dispose();
   }
 
   void _buttonPressed(){
     setState(() {
       if (!_isButtonDisabled) {
         _isButtonDisabled = true;
-        if (!alreadyClickedStartForTheFirstTime) {
-          stopwatchViewModel.start?.call();
-          alreadyClickedStartForTheFirstTime = true;
-        }
-        else
-          stopwatchViewModel.resume?.call();
+        stopWatchTimer.onExecute.add(StopWatchExecute.start);
+        TaskService.updateTaskLastPressedTime(widget.task.id);
       }
       else {
         _isButtonDisabled = false;
-        stopwatchViewModel.pause?.call();
-        TaskService.updateTaskTime(widget.task.id, stopwatchViewModel.currentTenMilliseconds);
-        widget.task.timeSpent = stopwatchViewModel.currentTenMilliseconds;
+        stopWatchTimer.onExecute.add(StopWatchExecute.stop);
+        TaskService.updateTaskTime(widget.task.id, totalTime);
+        widget.task.timeSpent = totalTime;
       }
+      widget.task.stopwatchLastPress = DateTime.now();
       TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled);
+      widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
+    });
+  }
+
+  void checkIfTimerIsAlreadyPressed(){
+    setState(() {
+      if (widget.task.stopwatchPressed){
+        _isButtonDisabled = !_isButtonDisabled;
+        Duration diff = DateTime.now().difference(widget.task.stopwatchLastPress);
+        stopWatchTimer.setPresetTime(mSec: diff.inMilliseconds + widget.task.timeSpent);
+        stopWatchTimer.onExecute.add(StopWatchExecute.start);
+      }
+      else{
+        stopWatchTimer.setPresetTime(mSec: widget.task.timeSpent);
+      }
     });
   }
 
@@ -129,8 +156,40 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 24),),
                   SizedBox(height: 12,),
-                  DPStopWatchWidget(
-                    stopwatchViewModel,
+                  StreamBuilder<int>(
+                      stream: stopWatchTimer.rawTime,
+                      initialData: 0,
+                      builder: (context, snap) {
+                        final value = snap.data;
+                        totalTime = value!;
+                        final displayTime = StopWatchTimer.getDisplayTime(value);
+                        return Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(
+                                displayTime,
+                                style: TextStyle(
+                                    fontSize: 40,
+                                    fontFamily: 'Helvetica',
+                                    fontWeight: FontWeight.bold
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(
+                                value.toString(),
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'Helvetica',
+                                    fontWeight: FontWeight.w400
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

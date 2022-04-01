@@ -33,7 +33,7 @@ class TaskService{
             .value
             .toString());
         int time = int.parse(task.child("timeSpent").value.toString());
-        bool pressed = task.child("pressed").value == 'true';
+        bool pressed = task.child("pressed").value == true;
         DateTime lastpress = DateTime.parse(task
             .child("lastButtonPress")
             .value
@@ -82,7 +82,7 @@ class TaskService{
             .value
             .toString());
         int time = int.parse(task.child("timeSpent").value.toString());
-        bool pressed = task.child("pressed").value == 'true';
+        bool pressed = task.child("pressed").value == true;
         DateTime lastpress = DateTime.parse(task
             .child("lastButtonPress")
             .value
@@ -116,7 +116,10 @@ class TaskService{
           String companyIdT = task.child("companyId").value.toString();
           String allocatedTo = task.child("allocatedTo").value.toString();
           DateTime by = DateTime.parse(task.child("by").value.toString());
-          tasks.add(Task(id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc, timeSpent: 0, stopwatchPressed: false, stopwatchLastPress: DateTime.now()));
+          bool pressed = task.child("pressed").value == true;
+          int time = int.parse(task.child("timeSpent").value.toString());
+          DateTime lastpress = DateTime.parse(task.child("lastButtonPress").value.toString());
+          tasks.add(Task(id: id, companyId: companyIdT,title: title,by: by,allocatedTo: allocatedTo, description: desc, timeSpent: time, stopwatchPressed: pressed, stopwatchLastPress: lastpress));
         }
     }
     return tasks.where((element) => element.companyId == companyId).toList();
@@ -130,6 +133,7 @@ class TaskService{
       "allocatedTo":task.allocatedTo,
       "companyId":task.companyId,
       "timeSpent":task.timeSpent,
+      "pressed":task.stopwatchPressed,
       "lastButtonPress": task.stopwatchLastPress.toString()
     });
   }
@@ -158,6 +162,12 @@ class TaskService{
     DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
     ref.update({
       "pressed" : pressed
+    });
+  }
+  static Future<void> updateTaskLastPressedTime(String taskId) async{
+    DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
+    ref.update({
+      "lastButtonPress" : DateTime.now().toString()
     });
   }
 }

@@ -69,7 +69,7 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My tasks'),
+        title: const Text('All tasks'),
         actions: <Widget>[
           IconButton(
               icon: const Icon(Icons.remove_circle),
