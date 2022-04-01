@@ -38,7 +38,7 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
   }
 
   void _addItemFunction(BuildContext ct) {
-    if (companyId == null) {
+    if (companyId == 'null') {
       this.showAlertDialog(ct);
     } else {
       showModalBottomSheet(
@@ -80,7 +80,7 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
         ]
       ),
       body: ListView(
-        children: [for (Task task in myTasks) CustomCard(task: task)],
+        children: [for (Task task in myTasks) CustomCard(task: task, user: widget.user, removed: false,)],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => {_addItemFunction(context)},
@@ -99,8 +99,8 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
       },
     ); // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("AlertDialog"),
-      content: Text("You arent in a company"),
+      title: Text("Alert"),
+      content: Text("You are not in a company"),
       actions: [cancelButton],
     ); // show the dialog
     showDialog(

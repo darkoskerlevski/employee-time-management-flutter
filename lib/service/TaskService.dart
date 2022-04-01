@@ -149,6 +149,16 @@ class TaskService{
     });
   }
 
+  static Future<void> updateTask(String taskId, String title, String desc, String date, String userId) async{
+    DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
+    ref.update({
+      "title" : title,
+      "description" : desc,
+      "by": date,
+      "allocatedTo" : userId
+    });
+  }
+
   static Future<void> deleteTask(String taskId) async{
     DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
     ref.update({

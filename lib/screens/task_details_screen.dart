@@ -1,4 +1,6 @@
 import 'package:etm_flutter/service/TaskService.dart';
+import 'package:etm_flutter/service/UserService.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import '../components/button.dart';
@@ -6,9 +8,13 @@ import '../model/Task.dart';
 import 'package:intl/intl.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
+import '../model/user.dart';
+
 class TaskDetailsScreen extends StatefulWidget {
   Task task;
-  TaskDetailsScreen({required this.task});
+  User user;
+  bool removed;
+  TaskDetailsScreen({required this.task, required this.user, required this.removed});
 
   @override
   _TaskDetailsScreenState createState() => _TaskDetailsScreenState();
@@ -18,18 +24,8 @@ class TaskDetailsScreen extends StatefulWidget {
 
 class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
-  // late final stopwatchViewModel = DPStopwatchViewModel(
-  //   startWithTenMilliseconds: widget.task.timeSpent,
-  //   clockTextStyle: const TextStyle(
-  //     color: Colors.black,
-  //     fontSize: 32,
-  //   ),
-  // );
   final stopWatchTimer = StopWatchTimer(
     mode: StopWatchMode.countUp,
-    // onChange: (value) => print('onChange $value'),
-    // onChangeRawSecond: (value) => print('onChangeRawSecond $value'),
-    // onChangeRawMinute: (value) => print('onChangeRawMinute $value'),
   );
 
   final taskTitleController = new TextEditingController();
@@ -41,6 +37,8 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   bool _isButtonDisabled = false;
   int totalTime = 0;
   void Function()? _buttonPressed;
+  String dropdownValue="";
+  List<CustomUser> users = [];
 
   @override
   void initState() {
@@ -49,6 +47,17 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     taskDueDateController.text = widget.task.by.toString();
     rollController.text = widget.task.sumRoll.toString();
     pitchController.text = widget.task.sumPitch.toString();
+    UserService.getUserEmail(widget.task.allocatedTo).then((value) => {
+      dropdownValue = value
+    });
+    UserService.worksFor(widget.user.uid).then((value1) => {
+      UserService.listUsers(value1).then((value2) {
+        setState(() {
+        users = value2;
+        dropdownValue = widget.task.allocatedTo;
+        });
+      })
+    });
     checkIfTimerIsAlreadyPressed();
     super.initState();
   }
@@ -195,6 +204,73 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                    ],
                   ),
                   SizedBox(height: 16,),
+                  Text(
+                    "Asignee"
+                  ),
+                  DropdownButton<String>(
+                    value: dropdownValue,
+                    icon: const Icon(Icons.arrow_downward),
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.deepPurple),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.deepPurpleAccent,
+                    ),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        dropdownValue = newValue!;
+                      });
+                    },
+                    items: users.map<DropdownMenuItem<String>>((CustomUser value) {
+                      String email = value.Email;
+                      return DropdownMenuItem<String>(
+                        value: value.id,
+                        child: Text(email),
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 8,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      TextButton(
+                        style: raisedButtonStyle,
+                        onPressed: () {
+                          TaskService.updateTask(widget.task.id, taskTitleController.text, taskDescriptionContoller.text, taskDueDateController.text, dropdownValue);
+                        },
+                        child: Text('Update Task'),
+                      ),
+                      SizedBox(
+                        width: 16,
+                      ),
+                      if (widget.removed)
+                        TextButton(
+                          style: raisedButtonStyle,
+                          onPressed: () {
+                            TaskService.restoreTask(widget.task.id);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Task restored"),
+                            ));
+                            Navigator.pop(context);
+                          },
+                          child: Text('Restore Task'),
+                      )
+                      else
+                        TextButton(
+                          style: raisedButtonStyle,
+                          onPressed: () {
+                            TaskService.deleteTask(widget.task.id);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Task deleted"),
+                            ));
+                            Navigator.pop(context);
+                          },
+                          child: Text('Delete Task'),
+                        )
+                    ],
+                  ),
+
                   const Divider(
                     height: 20,
                     thickness: 1,

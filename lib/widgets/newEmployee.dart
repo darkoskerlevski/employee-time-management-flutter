@@ -1,3 +1,4 @@
+import 'package:etm_flutter/service/CompanyService.dart';
 import 'package:flutter/material.dart';
 class NewEmployee extends StatefulWidget {
   final Function addItem;
@@ -11,10 +12,15 @@ class _NewEmployeeState extends State<NewEmployee> {
   final _uuidController = TextEditingController();
 
   String companyUuid="";
-  void _submitData() {
+  Future<void> _submitData() async {
     final companyuuid = _uuidController .text;
+    List<String> companies = await CompanyService.getAllCompanies();
 
-    if (companyuuid.isEmpty) {
+    if (companyuuid.isEmpty || !companies.contains(companyuuid)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Company not found"),
+      ));
+      Navigator.of(context).pop();
       return;
     }
 
@@ -37,7 +43,7 @@ class _NewEmployeeState extends State<NewEmployee> {
             onSubmitted: (_) => _submitData(),
           ),
           TextButton(
-            child: Text("Add"),
+            child: Text("Join"),
             onPressed: _submitData,
           ),
         ],

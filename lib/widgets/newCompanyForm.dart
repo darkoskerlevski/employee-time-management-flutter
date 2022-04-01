@@ -32,7 +32,7 @@ class _NewCompanyState extends State<NewCompany> {
         children: [
           TextField(
             controller: _naslovController,
-            decoration: InputDecoration(labelText: "Naslov"),
+            decoration: InputDecoration(labelText: "Company Name"),
             //  onChanged: (val) {
             //    naslov = val;
             //  }

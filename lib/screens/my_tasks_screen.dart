@@ -33,7 +33,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
   }
 
   void _addItemFunction(BuildContext ct) {
-    if(companyId==null)
+    if(companyId=='null')
       {
         this.showAlertDialog(ct);
       }
@@ -68,7 +68,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
         body: ListView(
           children: [
             for (Task task in myTasks)
-              CustomCard(task: task)
+              CustomCard(task: task, user: widget.user, removed: false)
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -89,8 +89,8 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
       },
     ); // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("AlertDialog"),
-      content: Text("You arent in a company"),
+      title: Text("Alert"),
+      content: Text("You are not in a company"),
       actions: [
         cancelButton
       ],

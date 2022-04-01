@@ -23,4 +23,15 @@ class CompanyService{
     }
     return null;
   }
+
+  static Future<List<String>>getAllCompanies() async{
+    DatabaseReference ref = FirebaseDatabase.instance.ref("companies");
+    DatabaseEvent event = await ref.once();
+    Iterable<DataSnapshot> companiesSnapshot = event.snapshot.children;
+    List<String> companies = [];
+    for (var key in companiesSnapshot){
+      companies.add(key.key!);
+    }
+    return companies;
+  }
 }
