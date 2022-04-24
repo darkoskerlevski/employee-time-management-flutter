@@ -191,7 +191,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
                       ),
                       SizedBox(height: 24,),
                       Text(
-                        "CompanyId: ",
+                        "Company ID: ",
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontSize: 16),
                       ),

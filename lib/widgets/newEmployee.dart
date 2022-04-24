@@ -36,7 +36,7 @@ class _NewEmployeeState extends State<NewEmployee> {
         children: [
           TextField(
             controller: _uuidController ,
-            decoration: InputDecoration(labelText: "Company Id"),
+            decoration: InputDecoration(labelText: "Company ID"),
             //  onChanged: (val) {
             //    naslov = val;
             //  }

@@ -59,6 +59,14 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
       });
   }
 
+  void _refresh(){
+    TaskService.listTasksForUser(widget.user.uid, companyId!).then((value) {
+      setState(() {
+        myTasks = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +76,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
         body: ListView(
           children: [
             for (Task task in myTasks)
-              CustomCard(task: task, user: widget.user, removed: false)
+              CustomCard(task: task, user: widget.user, removed: false, callback: _refresh)
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -89,7 +97,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
       },
     ); // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("Alert"),
+      title: Text("Alert!"),
       content: Text("You are not in a company"),
       actions: [
         cancelButton

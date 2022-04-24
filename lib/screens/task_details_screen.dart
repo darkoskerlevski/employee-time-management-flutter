@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:etm_flutter/model/Coords.dart';
 import 'package:etm_flutter/service/CoordsService.dart';
 import 'package:etm_flutter/service/TaskService.dart';
@@ -13,8 +12,8 @@ import '../model/Task.dart';
 import 'package:intl/intl.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'dart:math';
 import '../model/user.dart';
+import '../utils.dart';
 
 class TaskDetailsScreen extends StatefulWidget {
   Task task;
@@ -48,7 +47,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   double x=0;
   double y=0;
   double z=0;
-  List<Coords>? coords;
+  List<Coords> coords = [];
   StreamSubscription? streamSubscription;
 
   @override
@@ -56,7 +55,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     taskTitleController.text = widget.task.title;
     taskDescriptionContoller.text = widget.task.description;
     taskDueDateController.text = widget.task.by.toString();
-    usageController.text = "low";
+    usageController.text = "Low";
     UserService.getUserEmail(widget.task.allocatedTo).then((value) => {
       dropdownValue = value
     });
@@ -134,7 +133,8 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
           'Location permissions are permanently denied, we cannot request permissions.');
     }
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    CoordsService.saveCoords(taskId: widget.task.id, userId: widget.user.uid, lat: position.latitude, long: position.longitude);
+    CoordsService.saveCoords(taskId: widget.task.id, userId: widget.user.email!, lat: position.latitude, long: position.longitude);
+    print(coords);
   }
 
   void _timerStarted() {
@@ -155,7 +155,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
             usageController.text = "Moderate";
           }
           if (x+y+z > 5000) {
-            usageController.text = "high";
+            usageController.text = "High";
           }
       });
 
@@ -256,8 +256,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                     readOnly: true,
                   ),
                   SizedBox(height: 16,),
-                  SizedBox(width: 300,
-                      child: TextField(
+                  TextField(
                         controller: usageController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
@@ -266,8 +265,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                           enabled: false,
 
                         ),
-                      )
-                  ),
+                      ),
                   SizedBox(height: 16,),
                   Text(
                     "Asignee"
@@ -404,6 +402,47 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                       ),
                     ],
                   ),
+                  const Divider(
+                    height: 20,
+                    thickness: 1,
+                    indent: 0,
+                    endIndent: 0,
+                    color: Colors.grey,
+                  ),
+                  Text("Locations where the task was started/stopped:"),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  for (Coords coord in coords)
+                    Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Text("By User: " + coord.userId),
+                                ]
+                          ),
+                          SizedBox(
+                            height: 3,
+                          ),
+                          Text("Latitude: " + coord.lat.toString() + ", Longitude: " + coord.long.toString()),
+                          TextButton(
+                              onPressed: () => {
+                                MapUtils.openMap(coord.lat, coord.long)
+                              },
+                              child: Text("Open Map")),
+                          const Divider(
+                            height: 5,
+                            thickness: 1,
+                            indent: 35,
+                            endIndent: 35,
+                            color: Colors.grey,
+                          ),
+                      ]
+                    )
                 ],
               ),
             )

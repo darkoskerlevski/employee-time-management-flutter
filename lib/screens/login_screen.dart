@@ -1,9 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:etm_flutter/components/button.dart';
-import '../constants.dart';
+import '../utils.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
 
@@ -38,16 +39,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: Colors.grey[200],
                 child: SingleChildScrollView(
                   padding:
-                  EdgeInsets.symmetric(horizontal: 25, vertical: 120),
+                  EdgeInsets.symmetric(horizontal: 25, vertical: 100),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Sign In",
+                        "Employee Time Management",
                         style: TextStyle(
                             fontSize: 50,
                             color: Colors.black,
                             fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 30),
                       TextFormField(
