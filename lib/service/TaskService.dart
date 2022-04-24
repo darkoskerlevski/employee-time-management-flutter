@@ -1,4 +1,5 @@
 
+import 'package:etm_flutter/factories/TaskFactory.dart';
 import 'package:etm_flutter/model/Task.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
@@ -41,16 +42,18 @@ class TaskService{
             .child("lastButtonPress")
             .value
             .toString());
-        tasks.add(Task(id: id,
-            companyId: companyIdT,
-            title: title,
-            by: by,
-            allocatedTo: allocatedTo,
-            description: desc,
-            timeSpent: time,
-            stopwatchPressed: pressed,
-            stopwatchLastPress: lastpress,
-        sumRoll: sumRoll,sumPitch: sumPitch));
+        tasks.add(TaskFactory().toTask(
+          id: id,
+          companyId: companyIdT,
+          title: title,
+          by: by,
+          allocatedTo: allocatedTo,
+          description: desc,
+          timeSpent: time,
+          stopwatchPress: pressed,
+          stopwatchLastPressed: lastpress,
+          sumRoll: sumRoll,sumPitch: sumPitch
+        ));
       }
     }
     return tasks.where((element) => element.allocatedTo == userId && element.companyId == companyId).toList();

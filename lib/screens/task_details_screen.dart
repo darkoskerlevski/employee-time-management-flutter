@@ -9,7 +9,8 @@ import '../components/button.dart';
 import '../model/Task.dart';
 import 'package:intl/intl.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
-
+import 'package:sensors_plus/sensors_plus.dart';
+import 'dart:math';
 import '../model/user.dart';
 
 class TaskDetailsScreen extends StatefulWidget {
@@ -33,8 +34,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   final taskTitleController = new TextEditingController();
   final taskDescriptionContoller = new TextEditingController();
   final taskDueDateController = new TextEditingController();
-  final pitchController = new TextEditingController();
-  final rollController = new TextEditingController();
+  final usageController = new TextEditingController();
   var myFormat = DateFormat('yyyy-MM-dd');
   bool _isButtonDisabled = false;
   int totalTime = 0;
@@ -42,14 +42,16 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   String dropdownValue="";
   List<CustomUser> users = [];
   bool locationsPermissionsEnabled = false;
+  double x=0;
+  double y=0;
+  double z=0;
 
   @override
   void initState() {
     taskTitleController.text = widget.task.title;
     taskDescriptionContoller.text = widget.task.description;
     taskDueDateController.text = widget.task.by.toString();
-    rollController.text = widget.task.sumRoll.toString();
-    pitchController.text = widget.task.sumPitch.toString();
+    usageController.text = "low";
     UserService.getUserEmail(widget.task.allocatedTo).then((value) => {
       dropdownValue = value
     });
@@ -103,13 +105,9 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
-
-    // Test if location services are enabled.
+    
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
       return Future.error('Location services are disabled.');
     }
 
@@ -117,23 +115,14 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
         return Future.error('Location permissions are denied');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   }
 
@@ -146,15 +135,24 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled, await _determinePosition());
       widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
       _buttonPressed = _timerStopped;
-      FlutterBackgroundService flutterBackgroundService = FlutterBackgroundService();
-      flutterBackgroundService.startService();
+      gyroscopeEvents.listen((GyroscopeEvent event) {
+        setState(() {
+          x += event.x.abs();
+          y += event.y.abs();
+          z += event.z.abs();
+          if (x+y+z > 1000){
+            usageController.text = "Moderate";
+          }
+          if (x+y+z > 5000) {
+            usageController.text = "high";
+          }
+        });
+      });
     });
   }
 
   void _timerStopped() {
     setState(() async {
-      FlutterBackgroundService flutterBackgroundService = FlutterBackgroundService();
-      flutterBackgroundService.sendData({"event" : "sendData"});
       _isButtonDisabled = false;
       stopWatchTimer.onExecute.add(StopWatchExecute.stop);
       TaskService.updateTaskTime(widget.task.id, totalTime);
@@ -163,11 +161,6 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled, await _determinePosition());
       widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
       _buttonPressed = _timerStarted;
-
-      flutterBackgroundService.onDataReceived.first.then((value)=>{
-        TaskService.setRollAndPitch(widget.task.id,widget.task.sumRoll + value!["sumRoll"], widget.task.sumPitch + value["sumPitch"])
-      });
-      flutterBackgroundService.sendData({"event" : "stopService"});
     });
   }
 
@@ -249,34 +242,18 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                     },
                     readOnly: true,
                   ),
-                  SizedBox(height: 16,)
-                  ,Row(
-                   children: [
-                     SizedBox(width: 150,
-                         child: TextField(
-                           controller: rollController,
-                           decoration: InputDecoration(
-                             border: OutlineInputBorder(),
-                             labelText: 'Sum of roll',
-                             isDense: true,
-                             enabled: false,
+                  SizedBox(height: 16,),
+                  SizedBox(width: 300,
+                      child: TextField(
+                        controller: usageController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Usage level',
+                          isDense: true,
+                          enabled: false,
 
-                           ),
-                         )
-                     ),
-                     SizedBox(
-                       width: 16,
-                     )
-                     ,SizedBox(width: 150,child: TextField(
-                       controller: pitchController,
-                       decoration: InputDecoration(
-                         border: OutlineInputBorder(),
-                         labelText: 'Sum of pitch',
-                         isDense: true,
-                         enabled: false,
-                       ),
-                     ))
-                   ],
+                        ),
+                      )
                   ),
                   SizedBox(height: 16,),
                   Text(

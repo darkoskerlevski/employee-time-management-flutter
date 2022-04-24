@@ -1,3 +1,4 @@
+import 'package:etm_flutter/factories/CompanyFacotry.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import '../model/Company.dart';
@@ -16,10 +17,11 @@ class CompanyService{
       FirebaseDatabase.instance.ref("companies/$companyId/manager");
       DatabaseEvent nameEvent = await nameRef.once();
       DatabaseEvent managerEvent = await managerRef.once();
-      return Company(
+      return CompanyFactory().toCompany(
           id: companyId.toString(),
           name: nameEvent.snapshot.value.toString(),
-          managerId: managerEvent.snapshot.value.toString());
+          managerId: managerEvent.snapshot.value.toString()
+      );
     }
     return null;
   }
