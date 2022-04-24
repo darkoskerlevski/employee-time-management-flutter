@@ -183,7 +183,7 @@ class TaskService{
       "timeSpent" : time
     });
   }
-  static Future<void> updatePressedStatus(String taskId, bool pressed, Position? position) async{
+  static Future<void> updatePressedStatus(String taskId, bool pressed) async{
     DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
     ref.update({
       "pressed" : pressed

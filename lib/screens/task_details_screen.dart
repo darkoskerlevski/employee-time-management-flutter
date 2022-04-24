@@ -1,8 +1,9 @@
+import 'dart:async';
+
 import 'package:etm_flutter/service/TaskService.dart';
 import 'package:etm_flutter/service/UserService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../components/button.dart';
@@ -45,6 +46,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   double x=0;
   double y=0;
   double z=0;
+  StreamSubscription? streamSubscription;
 
   @override
   void initState() {
@@ -127,16 +129,15 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   }
 
   void _timerStarted() {
-    setState(() async {
+    setState(() {
       _isButtonDisabled = true;
       stopWatchTimer.onExecute.add(StopWatchExecute.start);
       TaskService.updateTaskLastPressedTime(widget.task.id);
       widget.task.stopwatchLastPress = DateTime.now();
-      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled, await _determinePosition());
+      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled);
       widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
       _buttonPressed = _timerStopped;
-      gyroscopeEvents.listen((GyroscopeEvent event) {
-        setState(() {
+      streamSubscription = gyroscopeEvents.listen((GyroscopeEvent event) {
           x += event.x.abs();
           y += event.y.abs();
           z += event.z.abs();
@@ -146,19 +147,18 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
           if (x+y+z > 5000) {
             usageController.text = "high";
           }
-        });
       });
     });
   }
 
   void _timerStopped() {
-    setState(() async {
+    setState(() {
       _isButtonDisabled = false;
       stopWatchTimer.onExecute.add(StopWatchExecute.stop);
       TaskService.updateTaskTime(widget.task.id, totalTime);
       widget.task.timeSpent = totalTime;
       widget.task.stopwatchLastPress = DateTime.now();
-      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled, await _determinePosition());
+      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled);
       widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
       _buttonPressed = _timerStarted;
     });
@@ -168,6 +168,8 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   void dispose() async{
     super.dispose();
     await stopWatchTimer.dispose();
+    if (streamSubscription!=null)
+      streamSubscription?.cancel();
   }
 
   void checkIfTimerIsAlreadyPressed(){
