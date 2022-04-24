@@ -9,13 +9,12 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'Screens/Login_Screen.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:flutter_background_service_ios/flutter_background_service_ios.dart';
-import 'package:aeyrium_sensor/aeyrium_sensor.dart';
 
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await initializeService();
+  //await initializeService();
   runApp(
     MyApp(),
   );
@@ -61,11 +60,14 @@ void onStart() {
   double sumPitch=0;
   double prevPitch=0;
 
+  print("Hi");
+
   service.onDataReceived.listen((event) {
     if (event["action"] == "stopService") {
       service.stopService();
     }
-    if (event["action"] == "sendData"){
+    if (event["action"] == "sendData") {
+
       service.sendData(
         {
           "sumRoll": sumRoll,
@@ -74,12 +76,6 @@ void onStart() {
       );
     }
   });
-
-  AeyriumSensor.sensorEvents.listen((SensorEvent event) {
-    sumRoll += (prevRoll-event.roll).abs();
-    sumPitch += (prevPitch-event.pitch).abs();
-  });
-
 }
 
 void onIosBackground() {
