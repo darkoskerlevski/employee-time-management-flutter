@@ -8,7 +8,8 @@ class CustomCard extends StatelessWidget{
   Task task;
   User user;
   bool removed;
-  CustomCard({required this.task, required this.user, required this.removed});
+  Function? callback;
+  CustomCard({required this.task, required this.user, required this.removed,this.callback});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,14 @@ class CustomCard extends StatelessWidget{
             children: [
               TextButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => TaskDetailsScreen(task: task, user: user, removed: removed)));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => TaskDetailsScreen(task: task, user: user, removed: removed))).then(
+                        (context) => {
+                          if(callback!=null)
+                            {
+                              callback!()
+                            }
+                        }
+                    );
                   },
                   child: const Text('Open Task', style: TextStyle(color: Colors.blue))
               )

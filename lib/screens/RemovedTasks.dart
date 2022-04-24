@@ -60,6 +60,14 @@ class _RemovedTasksScreenState extends State<RemovedTasksScreen> {
     });
   }
 
+  void _refresh(){
+    TaskService.listTasksForCompanyRemoved(companyId!).then((value) {
+      setState(() {
+        myTasks = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,7 +75,7 @@ class _RemovedTasksScreenState extends State<RemovedTasksScreen> {
         title: const Text('Removed Tasks'),
       ),
       body: ListView(
-        children: [for (Task task in myTasks) CustomCard(task: task, user: widget.user, removed: true)],
+        children: [for (Task task in myTasks) CustomCard(task: task, user: widget.user, removed: true,callback:_refresh)],
       )
     );
   }
