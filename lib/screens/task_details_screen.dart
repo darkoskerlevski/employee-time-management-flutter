@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:etm_flutter/model/Coords.dart';
+import 'package:etm_flutter/service/CoordsService.dart';
 import 'package:etm_flutter/service/TaskService.dart';
 import 'package:etm_flutter/service/UserService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -46,6 +48,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   double x=0;
   double y=0;
   double z=0;
+  List<Coords>? coords;
   StreamSubscription? streamSubscription;
 
   @override
@@ -63,6 +66,11 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
         users = value2;
         dropdownValue = widget.task.allocatedTo;
         });
+      })
+    });
+    CoordsService.getAllCoordsForTask(widget.task.id).then((value) => {
+      setState(()=>{
+        coords = value
       })
     });
     checkIfTimerIsAlreadyPressed();
@@ -104,7 +112,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     }
   }
 
-  Future<Position> _determinePosition() async {
+  Future<void> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
     
@@ -125,7 +133,8 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    CoordsService.saveCoords(taskId: widget.task.id, userId: widget.user.uid, lat: position.latitude, long: position.longitude);
   }
 
   void _timerStarted() {
@@ -137,6 +146,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled);
       widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
       _buttonPressed = _timerStopped;
+      _determinePosition();
       streamSubscription = gyroscopeEvents.listen((GyroscopeEvent event) {
           x += event.x.abs();
           y += event.y.abs();
@@ -148,6 +158,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
             usageController.text = "high";
           }
       });
+
     });
   }
 
