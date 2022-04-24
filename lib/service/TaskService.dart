@@ -2,6 +2,7 @@
 import 'package:etm_flutter/factories/TaskFactory.dart';
 import 'package:etm_flutter/model/Task.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:geolocator/geolocator.dart';
 
 class TaskService{
   static Future<List<Task>> listTasksForUser(String userId,String companyId) async{
@@ -182,7 +183,7 @@ class TaskService{
       "timeSpent" : time
     });
   }
-  static Future<void> updatePressedStatus(String taskId, bool pressed) async{
+  static Future<void> updatePressedStatus(String taskId, bool pressed, Position? position) async{
     DatabaseReference ref = FirebaseDatabase.instance.ref("tasks/${taskId}");
     ref.update({
       "pressed" : pressed
