@@ -9,8 +9,6 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'Screens/Login_Screen.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:flutter_background_service_ios/flutter_background_service_ios.dart';
-import 'package:aeyrium_sensor/aeyrium_sensor.dart';
-
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,11 +71,6 @@ void onStart() {
         },
       );
     }
-  });
-
-  AeyriumSensor.sensorEvents.listen((SensorEvent event) {
-    sumRoll += (prevRoll-event.roll).abs();
-    sumPitch += (prevPitch-event.pitch).abs();
   });
 
 }

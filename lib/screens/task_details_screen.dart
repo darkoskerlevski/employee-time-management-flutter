@@ -3,6 +3,8 @@ import 'package:etm_flutter/service/UserService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../components/button.dart';
 import '../model/Task.dart';
 import 'package:intl/intl.dart';
@@ -39,6 +41,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   void Function()? _buttonPressed;
   String dropdownValue="";
   List<CustomUser> users = [];
+  bool locationsPermissionsEnabled = false;
 
   @override
   void initState() {
@@ -59,16 +62,88 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       })
     });
     checkIfTimerIsAlreadyPressed();
+    checkPermissions();
     super.initState();
   }
 
+  Future<void> checkPermissions() async {
+    var status = await Permission.location.status;
+    if (status.isDenied) {
+      if (await Permission.location.request().isGranted) {
+        locationsPermissionsEnabled = true;
+      }
+      else{
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Permission error'),
+            content: Text("You have not enabled location permissions. In order for you to get the most functionality out of this app it's best to enable location permissions."),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel')),
+              ElevatedButton(
+                  onPressed: () {
+                    openAppSettings();
+                    Navigator.pop(context);
+                  },
+                  child: Text("Open Settings"))
+            ],
+          ),
+        );
+      }
+    }
+    else {
+      locationsPermissionsEnabled = true;
+    }
+  }
+
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  }
+
   void _timerStarted() {
-    setState(() {
+    setState(() async {
       _isButtonDisabled = true;
       stopWatchTimer.onExecute.add(StopWatchExecute.start);
       TaskService.updateTaskLastPressedTime(widget.task.id);
       widget.task.stopwatchLastPress = DateTime.now();
-      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled);
+      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled, await _determinePosition());
       widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
       _buttonPressed = _timerStopped;
       FlutterBackgroundService flutterBackgroundService = FlutterBackgroundService();
@@ -77,7 +152,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   }
 
   void _timerStopped() {
-    setState(() {
+    setState(() async {
       FlutterBackgroundService flutterBackgroundService = FlutterBackgroundService();
       flutterBackgroundService.sendData({"event" : "sendData"});
       _isButtonDisabled = false;
@@ -85,7 +160,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       TaskService.updateTaskTime(widget.task.id, totalTime);
       widget.task.timeSpent = totalTime;
       widget.task.stopwatchLastPress = DateTime.now();
-      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled);
+      TaskService.updatePressedStatus(widget.task.id, _isButtonDisabled, await _determinePosition());
       widget.task.stopwatchPressed = !widget.task.stopwatchPressed;
       _buttonPressed = _timerStarted;
 
