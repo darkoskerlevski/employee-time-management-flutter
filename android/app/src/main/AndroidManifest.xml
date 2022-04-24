@@ -25,7 +25,7 @@
         </intent>
     </queries>
    <application
-        android:label="etm_flutter"
+        android:label="Employee Time Management"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

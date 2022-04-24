@@ -134,7 +134,6 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     }
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     CoordsService.saveCoords(taskId: widget.task.id, userId: widget.user.email!, lat: position.latitude, long: position.longitude);
-    print(coords);
   }
 
   void _timerStarted() {
@@ -227,7 +226,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                       controller: taskDescriptionContoller,
                       maxLines: 5,
                       decoration: InputDecoration(
-                        labelText: "Task description",
+                        labelText: "Task Description",
                         border: OutlineInputBorder(),
                         fillColor: Colors.grey[300],
                         isDense: true,
@@ -239,7 +238,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                     controller: taskDueDateController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Due date',
+                      labelText: 'Due Date',
                       isDense: true,
                     ),
                     onTap: () async {
@@ -260,7 +259,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                         controller: usageController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: 'Usage level',
+                          labelText: 'Usage Level',
                           isDense: true,
                           enabled: false,
 
@@ -364,17 +363,6 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                                     fontSize: 40,
                                     fontFamily: 'Helvetica',
                                     fontWeight: FontWeight.bold
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Text(
-                                value.toString(),
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontFamily: 'Helvetica',
-                                    fontWeight: FontWeight.w400
                                 ),
                               ),
                             ),

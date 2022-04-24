@@ -89,20 +89,20 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
     );
   }
 
-  showAlertDialog(BuildContext context) {  // set up the buttons
+  showAlertDialog(BuildContext context) {
     Widget cancelButton = FlatButton(
       child: Text("Ok"),
       onPressed:  () {
         Navigator.pop(context);
       },
-    ); // set up the AlertDialog
+    );
     AlertDialog alert = AlertDialog(
       title: Text("Alert!"),
       content: Text("You are not in a company"),
       actions: [
         cancelButton
       ],
-    );  // show the dialog
+    );
     showDialog(
       context: context,
       builder: (BuildContext context) {

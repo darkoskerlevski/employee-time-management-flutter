@@ -81,18 +81,17 @@ class _RemovedTasksScreenState extends State<RemovedTasksScreen> {
   }
 
   showAlertDialog(BuildContext context) {
-    // set up the buttons
     Widget cancelButton = FlatButton(
       child: Text("Ok"),
       onPressed: () {
         Navigator.pop(context);
       },
-    ); // set up the AlertDialog
+    );
     AlertDialog alert = AlertDialog(
       title: Text("AlertDialog"),
       content: Text("You arent in a company"),
       actions: [cancelButton],
-    ); // show the dialog
+    );
     showDialog(
       context: context,
       builder: (BuildContext context) {

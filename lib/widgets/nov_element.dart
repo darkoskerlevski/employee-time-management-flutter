@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nanoid/nanoid.dart';
 
 import '../model/list_item.dart';
 
@@ -28,7 +27,7 @@ class _NovElementState extends State<NovElement> {
       return;
     }
 
-    final newItem = ListItem(id: nanoid(5), naslov: vnesenNaslov,allocatedTo: "123", opis: 'dasdsa');
+    final newItem = ListItem(id: "1", naslov: vnesenNaslov,allocatedTo: "123", opis: 'dasdsa');
     widget.addItem(context, newItem);
     Navigator.of(context).pop();
   }

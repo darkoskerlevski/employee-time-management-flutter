@@ -257,7 +257,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
   }
 
 
-  showAlertDialog(BuildContext context) {  // set up the buttons
+  showAlertDialog(BuildContext context) {
     Widget cancelButton = FlatButton(
       child: Text("Cancel"),
       onPressed:  () {
@@ -270,7 +270,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
         _leaveCompanyCallback(context);
         Navigator.pop(context);
       },
-    );  // set up the AlertDialog
+    );
     AlertDialog alert = AlertDialog(
       title: Text("Alert!"),
       content: Text("Are you sure you want to leave the company?"),
@@ -278,7 +278,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
         cancelButton,
         continueButton,
       ],
-    );  // show the dialog
+    );
     showDialog(
       context: context,
       builder: (BuildContext context) {

@@ -4,8 +4,6 @@ import '../model/list_item.dart';
 
 class ListDetailScreen extends StatelessWidget {
   static const routeName = '/list_detail';
-  //final ListItem item;
-  //ListDetailScreen(this.item);
 
   @override
   Widget build(BuildContext context) {

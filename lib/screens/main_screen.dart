@@ -11,8 +11,6 @@ import '../blocs/list_event.dart';
 
 class MainScreen extends StatelessWidget {
   void _addItemFunction(BuildContext ct) {
-    // var newElement = ListItem(id: "T1", naslov: "Test 1", vrednost: 13);
-    //
     showModalBottomSheet(
         context: ct,
         builder: (_) {
@@ -56,7 +54,6 @@ class MainScreen extends StatelessWidget {
 
   PreferredSizeWidget _createAppBar(BuildContext context) {
     return AppBar(
-        // The title text which will be shown on the action bar
         title: Text("Lists Example"),
         actions: <Widget>[
           IconButton(
